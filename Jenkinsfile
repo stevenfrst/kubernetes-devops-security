@@ -29,15 +29,13 @@ pipeline {
         }
       }
     }
-    
-    stage('sonartest') {
-      steps {
-        sh "mvn sonar:sonar \
-  -Dsonar.projectKey=numeric-application \
-  -Dsonar.host.url=http://localhost:9000 \
-  -Dsonar.login=f501ff85191bd9379ea1de1b366c656dafebcb0b"
-        }
-    }   
+    stages {
+      stage('SonarTest') {
+            steps {
+              sh "mvn sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.host.url=http://localhost:9000 -Dsonar.login=f501ff85191bd9379ea1de1b366c656dafebcb0b"
+            }
+        }   
+
      stage('Docker Build and Push') {
       steps {
         withDockerRegistry([credentialsId: "555279fb-2b24-4675-b6dc-96ed87862158", url: ""]) {
