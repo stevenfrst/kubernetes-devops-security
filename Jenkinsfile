@@ -32,10 +32,7 @@ pipeline {
     
     stage('sonartest') {
       steps {
-        sh "mvn clean verify sonar:sonar \
-    -Dsonar.projectKey=numeric-application \
-    -Dsonar.host.url=http://localhost:9000 \
-    -Dsonar.login=7f30385741e9f8a8331ad9842048ce8b67024f93"
+        sh "mvn clean verify sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.host.url=http://localhost:9000 -Dsonar.login=7f30385741e9f8a8331ad9842048ce8b67024f93"
         }
     }   
      stage('Docker Build and Push') {
