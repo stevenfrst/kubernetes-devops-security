@@ -1,24 +1,30 @@
+
+## Jenkinsfile with SonarQube and QualityGate Stage
+### Replace the host, port, token values
 pipeline {
   agent any
 
   stages {
-      stage('Build Artifact') {
-            steps {
-              sh "mvn clean package -DskipTests=true"
-              archive 'target/*.jar' //so that they can be downloaded later
-            }
-        }   
-      stage('unit test') {
-        steps {
-          sh "mvn test"
-        }
-        post {
+
+    stage('Build Artifact - Maven') {
+      steps {
+        sh "mvn clean package -DskipTests=true"
+        archive 'target/*.jar'
+      }
+    }
+
+    stage('Unit Tests - JUnit and JaCoCo') {
+      steps {
+        sh "mvn test"
+      }
+      post {
         always {
           junit 'target/surefire-reports/*.xml'
           jacoco execPattern: 'target/jacoco.exec'
         }
       }
-    }   
+    }
+
     stage('Mutation Tests - PIT') {
       steps {
         sh "mvn org.pitest:pitest-maven:mutationCoverage"
@@ -29,29 +35,32 @@ pipeline {
         }
       }
     }
-    stages {
-      stage('SonarTest') {
-            steps {
-              sh "mvn sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.host.url=http://localhost:9000 -Dsonar.login=f501ff85191bd9379ea1de1b366c656dafebcb0b"
-            }
-        }   
 
-     stage('Docker Build and Push') {
+    stage('SonarQube - SAST') {
       steps {
-        withDockerRegistry([credentialsId: "555279fb-2b24-4675-b6dc-96ed87862158", url: ""]) {
+        sh "mvn sonar:sonar -Dsonar.projectKey=numeric -Dsonar.host.url=http://localhost:9000 -Dsonar.login=f501ff85191bd9379ea1de1b366c656dafebcb0b"
+      }
+    }
+
+    stage('Docker Build and Push') {
+      steps {
+        withDockerRegistry([credentialsId: "docker-creds", url: ""]) {
           sh 'printenv'
-          sh 'docker build -t stevenfrst/numeric-app:""$GIT_COMMIT"" .'
-          sh 'docker push stevenfrst/numeric-app:""$GIT_COMMIT""'
+          sh 'docker build -t siddharth67/numeric-app:""$GIT_COMMIT"" .'
+          sh 'docker push siddharth67/numeric-app:""$GIT_COMMIT""'
         }
       }
     }
-      stage('Kubernetes Deployment - DEV') {
+
+    stage('Kubernetes Deployment - DEV') {
       steps {
         withKubeConfig([credentialsId: 'kubeconfig']) {
-          sh "sed -i 's#replace#siddharth67/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
+          sh "sed -i 'stevenfrst/numeric-app:${GIT_COMMIT}#g' k8s_deployment_service.yaml"
           sh "kubectl apply -f k8s_deployment_service.yaml"
         }
       }
     }
+
   }
+
 }
