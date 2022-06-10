@@ -1,6 +1,3 @@
-
-## Jenkinsfile with SonarQube and QualityGate Stage
-### Replace the host, port, token values
 pipeline {
   agent any
 
