@@ -1,3 +1,4 @@
+############### k8s-deployment.sh ###############
 #!/bin/bash
 
 #k8s-deployment.sh
@@ -13,3 +14,4 @@ else
     echo "image name - ${imageName}"
     kubectl -n default set image deploy ${deploymentName} ${containerName}=${imageName} --record=true
 fi
+############### k8s-deployment.sh ###############

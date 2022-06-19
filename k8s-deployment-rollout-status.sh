@@ -1,3 +1,5 @@
+
+############### k8s-deployment-rollout-status.sh ###############
 #!/bin/bash
 
 #k8s-deployment-rollout-status.sh
@@ -12,3 +14,4 @@ then
 else
 	echo "Deployment ${deploymentName} Rollout is Success"
 fi
+############### k8s-deployment-rollout-status.sh ###############
